@@ -16,32 +16,48 @@
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Meter Management Form</h1>
-        
-        <!-- Updated form tag -->
-        <form id="meter-form" class="space-y-6" action="https://script.google.com/macros/s/AKfycbwBVxjcSMtxdeUWHXNj_Hdhyf4W552wYJrKzok3t2B03l55QaintLqvtoZJ5VkWpni_/exec" method="POST">
-            <!-- Dropdown Section -->
-            <div>
-                <label for="action-select" class="block text-sm font-medium text-gray-700 mb-2">Select an action:</label>
-                <select id="action-select" name="action" class="block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-                    <option value="" disabled selected>-- Choose an action --</option>
-                    <option value="issuedByGenus">METER ISSUED BY GENUS</option>
-                    <option value="issuedToSupervisor">METER ISSUED TO SUPERVISOR</option>
-                    <option value="receivedFromSupervisor">METER RECEIVED FROM SUPERVISOR</option>
-                </select>
-            </div>
-            
-            <!-- Dynamic Input Fields Section -->
-            <div id="dynamic-fields-container" class="space-y-4">
-                <!-- Fields will be injected here by JavaScript -->
-            </div>
 
-            <!-- Submit Button -->
-            <div id="submit-container" class="hidden pt-4">
-                <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-md">
-                    Submit
-                </button>
+        <!-- Password Protection Section -->
+        <div id="password-section" class="space-y-4">
+            <h2 class="text-xl font-semibold text-center text-gray-700">Access Required</h2>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Enter Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter password"
+                       class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
             </div>
-        </form>
+            <button id="password-submit-btn" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-md">
+                Enter
+            </button>
+            <p id="error-message" class="text-red-500 text-sm text-center hidden">Incorrect password. Please try again.</p>
+        </div>
+        
+        <!-- Main Form (initially hidden) -->
+        <div id="form-container" class="hidden">
+            <form id="meter-form" class="space-y-6" action="https://script.google.com/macros/s/AKfycbwBVxjcSMtxdeUWHXNj_Hdhyf4W552wYJrKzok3t2B03l55QaintLqvtoZJ5VkWpni_/exec" method="POST">
+                <!-- Dropdown Section -->
+                <div>
+                    <label for="action-select" class="block text-sm font-medium text-gray-700 mb-2">Select an action:</label>
+                    <select id="action-select" name="action" class="block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                        <option value="" disabled selected>-- Choose an action --</option>
+                        <option value="issuedByGenus">METER ISSUED BY GENUS</option>
+                        <option value="issuedToSupervisor">METER ISSUED TO SUPERVISOR</option>
+                        <option value="receivedFromSupervisor">METER RECEIVED FROM SUPERVISOR</option>
+                    </select>
+                </div>
+                
+                <!-- Dynamic Input Fields Section -->
+                <div id="dynamic-fields-container" class="space-y-4">
+                    <!-- Fields will be injected here by JavaScript -->
+                </div>
+
+                <!-- Submit Button -->
+                <div id="submit-container" class="hidden pt-4">
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-md">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -49,6 +65,31 @@
         const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
         const submitContainer = document.getElementById('submit-container');
         const form = document.getElementById('meter-form');
+        const formContainer = document.getElementById('form-container');
+        const passwordSection = document.getElementById('password-section');
+        const passwordInput = document.getElementById('password');
+        const passwordSubmitBtn = document.getElementById('password-submit-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // IMPORTANT: Change this password to a secure one.
+        const CORRECT_PASSWORD = "Metro@2025";
+
+        // Password check logic
+        passwordSubmitBtn.addEventListener('click', () => {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                passwordSection.classList.add('hidden');
+                formContainer.classList.remove('hidden');
+            } else {
+                errorMessage.classList.remove('hidden');
+                passwordInput.value = '';
+            }
+        });
+        
+        passwordInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                passwordSubmitBtn.click();
+            }
+        });
 
         // Function to create a form field
         function createField(label, type, id, placeholder = '') {
@@ -116,9 +157,6 @@
             // Log the collected data to the console for demonstration
             console.log("Form Submitted:", data);
 
-            // You would typically send this data to a server here using fetch().
-            // alert('Form submitted! Check the console for the data.');
-            
             // Using a fetch call to post the data to the Google Apps Script URL.
             fetch(form.action, {
                 method: 'POST',
@@ -129,6 +167,8 @@
                 form.reset();
                 dynamicFieldsContainer.innerHTML = '';
                 submitContainer.classList.add('hidden');
+                passwordSection.classList.remove('hidden');
+                formContainer.classList.add('hidden');
             }).catch(error => {
                 console.error('Error submitting form:', error);
                 alert('An error occurred during submission.');
