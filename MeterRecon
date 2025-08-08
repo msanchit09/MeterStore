@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meter Management Form</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Meter Management Form</h1>
+        
+        <!-- Updated form tag -->
+        <form id="meter-form" class="space-y-6" action="https://script.google.com/macros/s/AKfycbwBVxjcSMtxdeUWHXNj_Hdhyf4W552wYJrKzok3t2B03l55QaintLqvtoZJ5VkWpni_/exec" method="POST">
+            <!-- Dropdown Section -->
+            <div>
+                <label for="action-select" class="block text-sm font-medium text-gray-700 mb-2">Select an action:</label>
+                <select id="action-select" name="action" class="block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    <option value="" disabled selected>-- Choose an action --</option>
+                    <option value="issuedByGenus">METER ISSUED BY GENUS</option>
+                    <option value="issuedToSupervisor">METER ISSUED TO SUPERVISOR</option>
+                    <option value="receivedFromSupervisor">METER RECEIVED FROM SUPERVISOR</option>
+                </select>
+            </div>
+            
+            <!-- Dynamic Input Fields Section -->
+            <div id="dynamic-fields-container" class="space-y-4">
+                <!-- Fields will be injected here by JavaScript -->
+            </div>
+
+            <!-- Submit Button -->
+            <div id="submit-container" class="hidden pt-4">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-md">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const actionSelect = document.getElementById('action-select');
+        const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
+        const submitContainer = document.getElementById('submit-container');
+        const form = document.getElementById('meter-form');
+
+        // Function to create a form field
+        function createField(label, type, id, placeholder = '') {
+            const valueAttribute = type === 'number' ? 'value="0"' : '';
+            return `
+                <div>
+                    <label for="${id}" class="block text-sm font-medium text-gray-700 mb-1">${label}</label>
+                    <input type="${type}" id="${id}" name="${id}" placeholder="${placeholder}" ${valueAttribute}
+                           class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition-colors" required>
+                </div>
+            `;
+        }
+
+        // Handle dropdown change event
+        actionSelect.addEventListener('change', (event) => {
+            const selectedValue = event.target.value;
+            dynamicFieldsContainer.innerHTML = '';
+            submitContainer.classList.add('hidden');
+
+            if (selectedValue) {
+                submitContainer.classList.remove('hidden');
+                
+                let html = '';
+                if (selectedValue === 'issuedByGenus') {
+                    html += createField('Date of Issue:', 'date', 'issue-date-genus');
+                    html += createField('Auto Fare Paid:', 'number', 'auto-fare', 'in INR');
+                    html += createField('RF 1Phase METERS:', 'number', 'rf-1phase');
+                    html += createField('4G 1Phase METERS:', 'number', '4g-1phase');
+                    html += createField('RF 3Phase METERS:', 'number', 'rf-3phase');
+                    html += createField('4G 3Phase METERS:', 'number', '4g-3phase');
+                    html += createField('LTCT:', 'number', 'ltct-meters');
+                    html += createField('HTCT:', 'number', 'htct-meters');
+                } else if (selectedValue === 'issuedToSupervisor') {
+                    html += createField('Date of Issue:', 'date', 'issue-date-to-sup');
+                    html += createField('Issued To:', 'text', 'issued-to-sup');
+                    html += createField('Issued By:', 'text', 'issued-by-sup');
+                    html += createField('Division:', 'text', 'division-to-sup');
+                    html += createField('RF 1Phase METERS:', 'number', 'rf-1phase-to-sup');
+                    html += createField('4G 1Phase METERS:', 'number', '4g-1phase-to-sup');
+                    html += createField('RF 3Phase METERS:', 'number', 'rf-3phase-to-sup');
+                    html += createField('4G 3Phase METERS:', 'number', '4g-3phase-to-sup');
+                    html += createField('LTCT:', 'number', 'ltct-meters-to-sup');
+                    html += createField('HTCT:', 'number', 'htct-meters-to-sup');
+                } else if (selectedValue === 'receivedFromSupervisor') {
+                    html += createField('Date:', 'date', 'receive-date');
+                    html += createField('Received from:', 'text', 'received-from');
+                    html += createField('Received by:', 'text', 'received-by');
+                    html += createField('Division:', 'text', 'division-from-sup');
+                    html += createField('Number of Meters:', 'number', 'number-of-meters-from-sup');
+                    html += createField('Comments:', 'text', 'comments-from-sup');
+                }
+                dynamicFieldsContainer.innerHTML = html;
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent the form from refreshing the page
+            
+            // Collect form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.action = actionSelect.value;
+            
+            // Log the collected data to the console for demonstration
+            console.log("Form Submitted:", data);
+
+            // You would typically send this data to a server here using fetch().
+            // alert('Form submitted! Check the console for the data.');
+            
+            // Using a fetch call to post the data to the Google Apps Script URL.
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                mode: 'no-cors' // Use 'no-cors' mode to prevent CORS issues with the Google Apps Script
+            }).then(response => {
+                alert('Form submitted successfully!');
+                form.reset();
+                dynamicFieldsContainer.innerHTML = '';
+                submitContainer.classList.add('hidden');
+            }).catch(error => {
+                console.error('Error submitting form:', error);
+                alert('An error occurred during submission.');
+            });
+        });
+
+        // Custom alert function to avoid using the native alert() which is not allowed in this environment
+        function alert(message) {
+            const container = document.body;
+            const alertBox = document.createElement('div');
+            alertBox.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+            alertBox.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm mx-4">
+                    <p class="text-lg font-semibold mb-4">${message}</p>
+                    <button id="close-alert" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">OK</button>
+                </div>
+            `;
+            container.appendChild(alertBox);
+
+            document.getElementById('close-alert').addEventListener('click', () => {
+                container.removeChild(alertBox);
+            });
+        }
+    </script>
+</body>
+</html>
