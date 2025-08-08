@@ -72,7 +72,7 @@
         const errorMessage = document.getElementById('error-message');
 
         // IMPORTANT: Change this password to a secure one.
-        const CORRECT_PASSWORD = "Metro@2025";
+        const CORRECT_PASSWORD = "pass123";
 
         // Password check logic
         passwordSubmitBtn.addEventListener('click', () => {
@@ -92,12 +92,13 @@
         });
 
         // Function to create a form field
-        function createField(label, type, id, placeholder = '') {
+        // Updated to include a 'name' attribute which matches the Google Sheet header
+        function createField(label, type, id, name, placeholder = '') {
             const valueAttribute = type === 'number' ? 'value="0"' : '';
             return `
                 <div>
                     <label for="${id}" class="block text-sm font-medium text-gray-700 mb-1">${label}</label>
-                    <input type="${type}" id="${id}" name="${id}" placeholder="${placeholder}" ${valueAttribute}
+                    <input type="${type}" id="${id}" name="${name}" placeholder="${placeholder}" ${valueAttribute}
                            class="mt-1 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition-colors" required>
                 </div>
             `;
@@ -114,32 +115,35 @@
                 
                 let html = '';
                 if (selectedValue === 'issuedByGenus') {
-                    html += createField('Date of Issue:', 'date', 'issue-date-genus');
-                    html += createField('Auto Fare Paid:', 'number', 'auto-fare', 'in INR');
-                    html += createField('RF 1Phase METERS:', 'number', 'rf-1phase');
-                    html += createField('4G 1Phase METERS:', 'number', '4g-1phase');
-                    html += createField('RF 3Phase METERS:', 'number', 'rf-3phase');
-                    html += createField('4G 3Phase METERS:', 'number', '4g-3phase');
-                    html += createField('LTCT:', 'number', 'ltct-meters');
-                    html += createField('HTCT:', 'number', 'htct-meters');
+                    // Updated `createField` calls with the correct `name` attribute
+                    html += createField('Date of Issue:', 'date', 'issue-date-genus', 'Date of Issue');
+                    html += createField('Auto Fare Paid:', 'number', 'auto-fare', 'Auto Fare Paid', 'in INR');
+                    html += createField('RF 1Phase METERS:', 'number', 'rf-1phase', 'RF 1Phase METERS');
+                    html += createField('4G 1Phase METERS:', 'number', '4g-1phase', '4G 1Phase METERS');
+                    html += createField('RF 3Phase METERS:', 'number', 'rf-3phase', 'RF 3Phase METERS');
+                    html += createField('4G 3Phase METERS:', 'number', '4g-3phase', '4G 3Phase METERS');
+                    html += createField('LTCT:', 'number', 'ltct-meters', 'LTCT');
+                    html += createField('HTCT:', 'number', 'htct-meters', 'HTCT');
                 } else if (selectedValue === 'issuedToSupervisor') {
-                    html += createField('Date of Issue:', 'date', 'issue-date-to-sup');
-                    html += createField('Issued To:', 'text', 'issued-to-sup');
-                    html += createField('Issued By:', 'text', 'issued-by-sup');
-                    html += createField('Division:', 'text', 'division-to-sup');
-                    html += createField('RF 1Phase METERS:', 'number', 'rf-1phase-to-sup');
-                    html += createField('4G 1Phase METERS:', 'number', '4g-1phase-to-sup');
-                    html += createField('RF 3Phase METERS:', 'number', 'rf-3phase-to-sup');
-                    html += createField('4G 3Phase METERS:', 'number', '4g-3phase-to-sup');
-                    html += createField('LTCT:', 'number', 'ltct-meters-to-sup');
-                    html += createField('HTCT:', 'number', 'htct-meters-to-sup');
+                    // Updated `createField` calls with the correct `name` attribute
+                    html += createField('Date of Issue:', 'date', 'issue-date-to-sup', 'Date of Issue');
+                    html += createField('Issued To:', 'text', 'issued-to-sup', 'Issued To');
+                    html += createField('Issued By:', 'text', 'issued-by-sup', 'Issued By');
+                    html += createField('Division:', 'text', 'division-to-sup', 'Division');
+                    html += createField('RF 1Phase METERS:', 'number', 'rf-1phase-to-sup', 'RF 1Phase METERS');
+                    html += createField('4G 1Phase METERS:', 'number', '4g-1phase-to-sup', '4G 1Phase METERS');
+                    html += createField('RF 3Phase METERS:', 'number', 'rf-3phase-to-sup', 'RF 3Phase METERS');
+                    html += createField('4G 3Phase METERS:', 'number', '4g-3phase-to-sup', '4G 3Phase METERS');
+                    html += createField('LTCT:', 'number', 'ltct-meters-to-sup', 'LTCT');
+                    html += createField('HTCT:', 'number', 'htct-meters-to-sup', 'HTCT');
                 } else if (selectedValue === 'receivedFromSupervisor') {
-                    html += createField('Date:', 'date', 'receive-date');
-                    html += createField('Received from:', 'text', 'received-from');
-                    html += createField('Received by:', 'text', 'received-by');
-                    html += createField('Division:', 'text', 'division-from-sup');
-                    html += createField('Number of Meters:', 'number', 'number-of-meters-from-sup');
-                    html += createField('Comments:', 'text', 'comments-from-sup');
+                    // Updated `createField` calls with the correct `name` attribute
+                    html += createField('Date:', 'date', 'receive-date', 'Date');
+                    html += createField('Received from:', 'text', 'received-from', 'Received from');
+                    html += createField('Received by:', 'text', 'received-by', 'Received by');
+                    html += createField('Division:', 'text', 'division-from-sup', 'Division');
+                    html += createField('Number of Meters:', 'number', 'number-of-meters-from-sup', 'Number of Meters');
+                    html += createField('Comments:', 'text', 'comments-from-sup', 'Comments');
                 }
                 dynamicFieldsContainer.innerHTML = html;
             }
@@ -151,17 +155,16 @@
             
             // Collect form data
             const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            data.action = actionSelect.value;
+            const urlSearchParams = new URLSearchParams(formData);
             
             // Log the collected data to the console for demonstration
-            console.log("Form Submitted:", data);
+            console.log("Form Submitted:", Object.fromEntries(formData.entries()));
 
-            // Using a fetch call to post the data to the Google Apps Script URL.
+            // Using a fetch call with URLSearchParams.
             fetch(form.action, {
                 method: 'POST',
-                body: new FormData(form),
-                mode: 'no-cors' // Use 'no-cors' mode to prevent CORS issues with the Google Apps Script
+                body: urlSearchParams, // Use the URL-encoded string
+                mode: 'no-cors'
             }).then(response => {
                 alert('Form submitted successfully!');
                 form.reset();
